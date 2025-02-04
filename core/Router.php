@@ -1,29 +1,37 @@
 <?php
+
 namespace app\core;
 
 use app\core\exceptions\NotFoundException;
+use app\core\middlewares\BaseMiddleware;
 
 class Router
 {
     public Request $request;
     public Response $response;
     protected array $routes = [];
+    protected array $routeMiddlewares = [];
+    protected array $middlewareConfig;
 
     public function __construct(Request $request, Response $response)
     {
         $this->request = $request;
         $this->response = $response;
+        $this->middlewareConfig = require_once Application::$ROOT_DIR . '/config/middlewares.php';
     }
 
-    public function get(string $path, $callback)
+    public function get(string $path, $callback, array $middlewares = [])
     {
         $this->routes['get'][$path] = $callback;
+        $this->applyMiddlewares($middlewares, "get", $path);
     }
 
-    public function post(string $path, $callback)
+    public function post(string $path, $callback, array $middlewares = [])
     {
         $this->routes['post'][$path] = $callback;
+        $this->applyMiddlewares($middlewares, "post", $path);
     }
+
 
     public function resolve()
     {
@@ -31,9 +39,13 @@ class Router
         $method = $this->request->method();
 
         $callback = $this->matchRoute($method, $path, $params);
-
         if (!$callback) {
-            throw new NotFoundException;
+            throw new NotFoundException();
+        }
+
+        $this->executeMiddlewares($method, is_array($callback[1]) ? $callback[0] : $path);
+        if (is_array($callback[1])) {
+            $callback = $callback[1];
         }
 
         if (is_string($callback)) {
@@ -44,12 +56,7 @@ class Router
             $controller = new $callback[0]();
             Application::$app->controller = $controller;
             $controller->action = $callback[1];
-
-            foreach ($controller->getMiddlewares() as $middleware) {
-                $middleware->execute();
-            }
-
-            return call_user_func_array([$controller, $callback[1]], array_merge([$this->request, $this->response], $params));
+            return call_user_func_array([$controller, $callback[1]], array_merge([$this->request, $this->response], $params ?? []));
         }
 
         return call_user_func_array($callback, array_merge([$this->request, $this->response], $params));
@@ -57,21 +64,46 @@ class Router
 
     private function matchRoute(string $method, string $path, &$params = [])
     {
-        // Exact match first
         if (isset($this->routes[$method][$path])) {
             return $this->routes[$method][$path];
         }
 
-        // Check for dynamic routes
         foreach ($this->routes[$method] as $route => $callback) {
             $routePattern = preg_replace('/\{(\w+)\}/', '([^\/]+)', $route);
             if (preg_match("#^{$routePattern}$#", $path, $matches)) {
-                array_shift($matches); // Remove full match
+                array_shift($matches);
                 $params = $matches;
-                return $callback;
+                return [$route, $callback];
             }
         }
 
         return false;
+    }
+
+    private function applyMiddlewares(array $middlewares, $method, $path)
+    {
+        foreach ($middlewares as $middleware) {
+            if ($middleware instanceof BaseMiddleware)
+                $this->routeMiddlewares[$method][$path][] = $middleware;
+            if (is_string($middleware)) {
+                try {
+
+                    $middleware = $this->middlewareConfig[$middleware];
+                    $this->routeMiddlewares[$method][$path][] = new $middleware();
+                } catch (\Exception $e) {
+                    throw new \Exception("Middleware $middleware not found");
+                }
+            }
+        }
+    }
+    private function executeMiddlewares(string $method, string $route)
+    {
+        $middlewares = $this->routeMiddlewares[$method][$route] ?? [];
+        dump($middlewares);
+        foreach ($middlewares as $middleware) {
+            if ($middleware instanceof BaseMiddleware) {
+                $middleware->execute();
+            }
+        }
     }
 }

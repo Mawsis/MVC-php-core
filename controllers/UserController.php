@@ -17,6 +17,6 @@ class UserController extends Controller
             $response->setStatusCode(404);
             return "User not found";
         }
-        return "User found $user->username";
+        return $response->json($user);
     }
 }

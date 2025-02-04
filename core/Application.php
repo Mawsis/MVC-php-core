@@ -68,7 +68,7 @@ class Application
                 'method' => $this->request->method()
             ]);
             echo $this->router->resolve();
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $this->logger->error($e->getMessage(), ['exception' => $e]);
             $this->response->setStatusCode($e->getCode());
             echo $this->view->renderView('_error', ['exception' => $e]);
