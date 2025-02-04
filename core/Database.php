@@ -26,14 +26,14 @@ class Database
             require_once Application::$ROOT_DIR . "/migrations/$migration";
             $className = pathinfo($migration, PATHINFO_FILENAME);
             $instance = new $className;
-            $this->log("Applying migration $migration");
+            Application::$app->logger->info("Applying migration $migration");
             $instance->up();
             $newMigrations[] = $migration;
         }
         if (!empty($newMigrations)) {
             $this->saveMigrations($newMigrations);
         } else {
-            $this->log("All migrations applied");
+            Application::$app->logger->info("All migrations applied");
         }
     }
     public function createMigrationTable()
@@ -58,10 +58,7 @@ class Database
     }
     public function prepare(string $sql)
     {
+        Application::$app->logger->info($sql);
         return $this->pdo->prepare($sql);
-    }
-    public function log($msg)
-    {
-        echo '[' . date('Y-m-d H:i:s') . '] - ' . $msg . PHP_EOL;
     }
 }
