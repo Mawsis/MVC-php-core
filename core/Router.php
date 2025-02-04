@@ -99,7 +99,6 @@ class Router
     private function executeMiddlewares(string $method, string $route)
     {
         $middlewares = $this->routeMiddlewares[$method][$route] ?? [];
-        dump($middlewares);
         foreach ($middlewares as $middleware) {
             if ($middleware instanceof BaseMiddleware) {
                 $middleware->execute();
