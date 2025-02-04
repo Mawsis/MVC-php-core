@@ -1,10 +1,6 @@
 <?php
 
-use app\controllers\SiteController;
-use app\controllers\AuthController;
-use app\controllers\UserController;
 use app\core\Application;
-use app\core\middlewares\AuthMiddleware;
 use Dotenv\Dotenv;
 
 require_once __DIR__ . "/../vendor/autoload.php";

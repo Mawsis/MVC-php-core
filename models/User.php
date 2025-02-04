@@ -1,5 +1,8 @@
 <?php
+
 namespace app\models;
+
+use app\core\Application;
 use app\core\UserModel;
 
 class User extends UserModel
@@ -12,7 +15,7 @@ class User extends UserModel
     public string $password = '';
     public string $confirmPassword = '';
     public int $status = self::STATUS_INACTIVE;
-    public int $id;
+    public ?int $id;
     public string $created_at;
     public function save()
     {

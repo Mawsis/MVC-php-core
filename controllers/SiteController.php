@@ -12,7 +12,7 @@ class SiteController extends Controller
 {
     public function home()
     {
-        $params =  ['name' => Application::$app->user?->getDisplayName() ?? 'Guest'];
+        $params =  ['name' => Application::$app->auth->user->username ?? 'Guest'];
         return $this->render('home', $params);
     }
     public function contact(Request $request, Response $response)

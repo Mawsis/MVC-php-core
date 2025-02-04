@@ -43,7 +43,7 @@ class AuthController extends Controller
     }
     public function logout(Request $request, Response $response)
     {
-        Application::$app->logout();
+        Application::$app->auth->logout();
         Application::$app->session->setFlash("danger", "Logged out");
         $response->redirect('/');
     }

@@ -1,7 +1,10 @@
 <?php
-namespace app\core\form;
+
+namespace app\form;
+
 use app\core\form\Field;
 use app\core\Model;
+
 class Form
 {
     public static function begin(string $action, string $method): Form
@@ -17,5 +20,4 @@ class Form
     {
         return new InputField($model, $attribute);
     }
-
 }
