@@ -13,8 +13,20 @@ class Request
 
     public function __construct()
     {
-        $this->validationConfig = require_once Application::$ROOT_DIR . '/config/validations.php';
+        $configPath = Application::$ROOT_DIR . '/config/validations.php';
+
+        if (file_exists($configPath)) {
+            $config = require $configPath;
+            if (is_array($config)) {
+                $this->validationConfig = $config;
+            } else {
+                throw new Exception("Validation configuration must return an array.");
+            }
+        } else {
+            throw new Exception("Validation configuration file not found: $configPath");
+        }
     }
+
     public function getPath(): string
     {
         $path = $_SERVER['REQUEST_URI'] ?? '/';
@@ -96,5 +108,12 @@ class Request
         return $this->validated;
     }
 
-    public function getErrors() {}
+    public function loadData(array $data): void
+    {
+        foreach ($data as $key => $value) {
+            if (property_exists($this, $key)) {
+                $this->{$key} = $value;
+            }
+        }
+    }
 }
