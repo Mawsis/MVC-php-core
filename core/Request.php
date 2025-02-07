@@ -13,18 +13,7 @@ class Request
 
     public function __construct()
     {
-        $configPath = Application::$ROOT_DIR . '/config/validations.php';
-
-        if (file_exists($configPath)) {
-            $config = require $configPath;
-            if (is_array($config)) {
-                $this->validationConfig = $config;
-            } else {
-                throw new Exception("Validation configuration must return an array.");
-            }
-        } else {
-            throw new Exception("Validation configuration file not found: $configPath");
-        }
+        $this->validationConfig = require Application::$ROOT_DIR . '/config/validations.php';
     }
 
     public function getPath(): string
