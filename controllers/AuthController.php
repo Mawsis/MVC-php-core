@@ -4,9 +4,9 @@ namespace app\controllers;
 
 use app\core\Application;
 use app\core\Controller;
-use app\core\middlewares\AuthMiddleware;
 use app\core\Request;
 use app\core\Response;
+use app\core\validation\RequiredValidation;
 use app\models\LoginForm;
 use app\models\User;
 
@@ -16,6 +16,9 @@ class AuthController extends Controller
     {
         $loginForm = new LoginForm;
         if ($request->isPost()) {
+            $request->validate([
+                'email' => ["min:3", "unique:users:email"],
+            ]);
             $loginForm->loadData($request->getBody());
             if ($loginForm->validate() && $loginForm->login()) {
                 Application::$app->session->setFlash("success", "Login Successful");

@@ -10,8 +10,12 @@ use app\models\ContactForm;
 
 class SiteController extends Controller
 {
-    public function home()
+    public function home(Request $request, Response $response)
     {
+        $request->validate([
+            'name' => 'required',
+            'password' => 'required'
+        ]);
         $params =  ['name' => Application::$app->auth->user->username ?? 'Guest'];
         return $this->render('home', $params);
     }

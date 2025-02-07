@@ -1,5 +1,7 @@
 <?php
+
 namespace app\core;
+
 use PDO;
 
 class QueryBuilder
@@ -10,11 +12,13 @@ class QueryBuilder
     private array $bindings = [];
     private string $orderBy = '';
     private int $limit = 0;
+    private bool $isClass = true;
     private ?string $modelClass;
 
     public function __construct(string $modelClass)
     {
-        $this->table = $modelClass::tableName();
+        $this->table = $modelClass instanceof DbModel ? $modelClass::tableName() : $modelClass;
+        $this->isClass = $modelClass instanceof DbModel ? true : false;
         $this->modelClass = $modelClass;
     }
 
@@ -62,7 +66,11 @@ class QueryBuilder
             $statement->bindValue($param, $value);
         }
         $statement->execute();
-        return $statement->fetchAll(PDO::FETCH_CLASS, $this->modelClass);
+        if ($this->isClass) {
+            return $statement->fetchAll(PDO::FETCH_CLASS, $this->modelClass);
+        } else {
+            return $statement->fetchAll(PDO::FETCH_OBJ);
+        }
     }
 
     public function first(): ?object

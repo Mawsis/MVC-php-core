@@ -1,35 +1,94 @@
 <?php
+
 namespace app\core;
-class Request{
-    public function getPath():string {
-        $path = $_SERVER['REQUEST_URI']??'/';
-        $position = strpos($path,'?');
-        if(!$position){
-            return $path;
-        }
-        return substr($path,0,$position);
+
+use Exception;
+
+class Request
+{
+    public array $errors = [];
+    public array $validated = [];
+    protected array $rules = [];
+    protected array $validationConfig;
+
+    public function __construct()
+    {
+        $this->validationConfig = require_once Application::$ROOT_DIR . '/config/validations.php';
     }
-    public function method() : string {
+    public function getPath(): string
+    {
+        $path = $_SERVER['REQUEST_URI'] ?? '/';
+        $position = strpos($path, '?');
+        return $position ? substr($path, 0, $position) : $path;
+    }
+
+    public function method(): string
+    {
         return strtolower($_SERVER['REQUEST_METHOD']);
     }
-    public function isGet():bool {
+
+    public function isGet(): bool
+    {
         return $this->method() === 'get';
     }
-    public function isPost():bool {
+
+    public function isPost(): bool
+    {
         return $this->method() === 'post';
     }
-    public function getBody():array{
+
+    public function getBody(): array
+    {
         $body = [];
-        if($this->method()==='get'){
+        if ($this->isGet()) {
             foreach ($_GET as $key => $value) {
-                $body[$key] = filter_input(INPUT_GET,$key,FILTER_SANITIZE_SPECIAL_CHARS);
+                $body[$key] = filter_input(INPUT_GET, $key, FILTER_SANITIZE_SPECIAL_CHARS);
             }
         }
-        if($this->method()==='post'){
+        if ($this->isPost()) {
             foreach ($_POST as $key => $value) {
-                $body[$key] = filter_input(INPUT_POST,$key,FILTER_SANITIZE_SPECIAL_CHARS);
+                $body[$key] = filter_input(INPUT_POST, $key, FILTER_SANITIZE_SPECIAL_CHARS);
             }
         }
         return $body;
     }
+    protected function isAuthorized(): bool
+    {
+        return true;
+    }
+    public function validate(array $rules = [])
+    {
+        $rules = $rules ?: $this->rules;
+        $body = $this->getBody();
+        foreach ($rules as $attribute => $r) {
+            foreach ($r as $rule) {
+                if ($rule instanceof BaseValidation) {
+                    if ($rule->validate($body[$attribute])) {
+                        $this->validated[$attribute] = $body[$attribute];
+                    } else {
+                        $this->errors[$attribute] = $rule->getErrorMessage($attribute);
+                    }
+                }
+                if (is_string($rule)) {
+                    try {
+                        $stripped = explode(':', $rule);
+                        $rule = array_shift(array: $stripped);
+                        $params = $stripped;
+                        $rule = $this->validationConfig[$rule];
+                        $validation = $params ? new $rule(...$params) : new $rule();
+                        if ($validation->validate($body[$attribute])) {
+                            $this->validated[$attribute] = $body[$attribute];
+                        } else {
+                            $this->errors[$attribute] = $validation->getErrorMessage($attribute);
+                        }
+                    } catch (Exception $e) {
+                        throw new Exception("Validation rule $rule not found in validation config");
+                    }
+                }
+            }
+        }
+        dump($this->errors);
+    }
+
+    public function getErrors() {}
 }
