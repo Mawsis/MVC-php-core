@@ -12,7 +12,7 @@ class MaxValidation extends BaseValidation
     {
         $this->max = $max;
     }
-    public function validate($value)
+    public function validate($value): bool
     {
         return strlen($value) <= $this->max;
     }

@@ -152,7 +152,6 @@ class Router
                 }
             }
         }
-
         return array_merge($dependencies, $params);
     }
 }

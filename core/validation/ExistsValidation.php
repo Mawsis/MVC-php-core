@@ -5,7 +5,7 @@ namespace app\core\validation;
 use app\core\BaseValidation;
 use app\core\QueryBuilder;
 
-class UniqueValidation extends BaseValidation
+class ExistsValidation extends BaseValidation
 {
     private $table;
     private $attribute;
@@ -19,11 +19,11 @@ class UniqueValidation extends BaseValidation
     public function validate($value): bool
     {
         $record = (new QueryBuilder($this->table))->where($this->attribute, "=", $value)->first();
-        return !$record;
+        return isset($record);
     }
 
     public function getErrorMessage($attribute = ""): string
     {
-        return "$attribute has already been taken";
+        return "$attribute does not exist";
     }
 }

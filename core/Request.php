@@ -4,6 +4,7 @@ namespace app\core;
 
 use Exception;
 
+#[\AllowDynamicProperties]
 class Request
 {
     public array $errors = [];
@@ -14,6 +15,7 @@ class Request
     public function __construct()
     {
         $this->validationConfig = require Application::$ROOT_DIR . '/config/validations.php';
+        $this->loadData($this->getBody());
     }
 
     public function getPath(): string
@@ -100,9 +102,12 @@ class Request
     public function loadData(array $data): void
     {
         foreach ($data as $key => $value) {
-            if (property_exists($this, $key)) {
-                $this->{$key} = $value;
-            }
+            $this->{$key} = $value;
         }
+    }
+
+    public function addError(string $attribute, string $message): void
+    {
+        $this->errors[$attribute] = $message;
     }
 }

@@ -6,7 +6,7 @@ use app\core\BaseValidation;
 
 class EmailValidation extends BaseValidation
 {
-    public function validate($value)
+    public function validate($value): bool
     {
         return filter_var($value, FILTER_VALIDATE_EMAIL);
     }

@@ -31,8 +31,7 @@ class SiteController extends Controller
             return $response->redirect('/');
         }
         $contact = new ContactFormData();
-        $contact->loadData($request->getBody());
-        $contact->errors = $request->errors;
+        $contact->loadData($request->getBody(), $request->errors);
         return $this->render('contact', [
             'formData' => $contact
         ]);

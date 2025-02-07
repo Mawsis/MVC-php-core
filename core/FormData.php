@@ -2,17 +2,17 @@
 
 namespace app\core;
 
+#[\AllowDynamicProperties]
 abstract class FormData
 {
     public array $errors;
     protected array $labels = [];
-    public function loadData($data)
+    public function loadData($data, $errors = [])
     {
         foreach ($data as $key => $value) {
-            if (property_exists($this, $key)) {
-                $this->{$key} = $value;
-            }
+            $this->{$key} = $value;
         }
+        $this->errors = $errors;
     }
     public function getLabel($attribute): string
     {

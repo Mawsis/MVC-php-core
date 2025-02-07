@@ -51,4 +51,17 @@ abstract class DbModel
     {
         return Application::$app->db->pdo->prepare($sql);
     }
+    public static function create(array $data)
+    {
+        $table = static::tableName();
+        $attributes = static::attributes();
+        $params = array_map(fn($attr) => ":$attr", $attributes);
+        $sql = "INSERT INTO $table (" . implode(",", $attributes) . ") VALUES (" . implode(",", $params) . ")";
+
+        $statement = self::prepare($sql);
+        foreach ($attributes as $attribute) {
+            $statement->bindValue(":$attribute", $data[$attribute]);
+        }
+        return $statement->execute();
+    }
 }

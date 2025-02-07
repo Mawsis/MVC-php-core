@@ -8,4 +8,5 @@ return [
     "max" => app\core\validation\MaxValidation::class,
     "email" => app\core\validation\EmailValidation::class,
     "unique" => app\core\validation\UniqueValidation::class,
+    "exists" => app\core\validation\ExistsValidation::class,
 ];

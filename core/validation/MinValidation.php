@@ -12,7 +12,7 @@ class MinValidation extends BaseValidation
     {
         $this->min = $min;
     }
-    public function validate($value)
+    public function validate($value): bool
     {
         return strlen($value) >= $this->min;
     }
