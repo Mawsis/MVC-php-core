@@ -2,14 +2,15 @@
 
 namespace app\form;
 
+use app\core\FormData;
 use app\core\Model;
 
 class InputField extends BaseField
 {
     public string $type;
-    public function __construct(Model $model, string $attribute)
+    public function __construct(FormData $data, $attibute)
     {
-        parent::__construct($model, $attribute);
+        parent::__construct($data, $attibute);
         $this->type = 'text';
     }
     public function setType(string $type)
@@ -24,8 +25,8 @@ class InputField extends BaseField
         ',
             $this->type,
             $this->attribute,
-            $this->model->{$this->attribute},
-            $this->model->hasError($this->attribute) ? 'is-invalid' : ''
+            $this->data->{$this->attribute} ?? '',
+            $this->data->hasError($this->attribute) ? 'is-invalid' : ''
         );
     }
 }

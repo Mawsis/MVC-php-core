@@ -2,6 +2,7 @@
 
 namespace app\form;
 
+use app\core\FormData;
 use app\core\Model;
 
 class Form
@@ -16,7 +17,7 @@ class Form
     {
         echo '</form';
     }
-    public function field(Model $model, $attribute)
+    public function field(FormData $model, $attribute)
     {
         return new InputField($model, $attribute);
     }

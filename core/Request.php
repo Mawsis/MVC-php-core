@@ -87,7 +87,13 @@ class Request
                 }
             }
         }
-        dump($this->errors);
+        return empty($this->errors);
+    }
+
+    public function validated()
+    {
+        $this->validate();
+        return $this->validated;
     }
 
     public function getErrors() {}

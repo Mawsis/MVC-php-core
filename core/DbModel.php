@@ -1,8 +1,10 @@
 <?php
+
 namespace app\core;
+
 use PDO;
 
-abstract class DbModel extends Model
+abstract class DbModel
 {
     abstract public static function tableName(): string;
     abstract public static function attributes(): array;
@@ -10,10 +12,6 @@ abstract class DbModel extends Model
 
     protected static ?PDO $pdo = null;
 
-    public function __construct(array $data = [])
-    {
-        $this->loadData($data);
-    }
 
     public function save()
     {

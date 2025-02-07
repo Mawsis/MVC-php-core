@@ -23,15 +23,6 @@ class User extends UserModel
         $this->status = self::STATUS_INACTIVE;
         return parent::save();
     }
-    public function rules(): array
-    {
-        return [
-            'username' => [self::RULE_REQUIRED],
-            'email' => [self::RULE_REQUIRED, self::RULE_EMAIL, [self::RULE_UNIQUE, 'class' => self::class]],
-            'password' => [self::RULE_REQUIRED, [self::RULE_MIN, 'min' => 8]],
-            'confirmPassword' => [self::RULE_REQUIRED, [self::RULE_MATCH, 'match' => 'password']],
-        ];
-    }
     public static function tableName(): string
     {
         return 'users';

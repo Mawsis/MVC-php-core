@@ -11,8 +11,8 @@ class TextareaField extends BaseField
             <textarea name="%s" class="form-control %s">%s</textarea>
         ',
             $this->attribute,
-            $this->model->hasError($this->attribute) ? 'is-invalid' : '',
-            $this->model->{$this->attribute}
+            $this->data->hasError($this->attribute) ? 'is-invalid' : '',
+            $this->data->{$this->attribute} ?? ''
         );
     }
 }

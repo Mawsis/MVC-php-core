@@ -2,17 +2,18 @@
 
 namespace app\form;
 
+use app\core\FormData;
 use app\core\Model;
 
 abstract class BaseField
 {
     abstract public function renderInput(): string;
-    public Model $model;
+    public FormData $data;
     public string $attribute;
-    public function __construct(Model $model, string $attribute)
+    public function __construct(FormData $data, $attibute)
     {
-        $this->model = $model;
-        $this->attribute = $attribute;
+        $this->data = $data;
+        $this->attribute = $attibute;
     }
     public function __toString()
     {
@@ -24,9 +25,9 @@ abstract class BaseField
             <div class="invalid-feedback">%s</div>
         </div>
     ',
-            ucfirst($this->model->getLabel($this->attribute)),
+            ucfirst($this->data->getLabel($this->attribute)),
             $this->renderInput(),
-            $this->model->getFirstError($this->attribute)
+            $this->data->errors[$this->attribute] ?? ''
         );
     }
 }

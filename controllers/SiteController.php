@@ -6,7 +6,7 @@ use app\core\Application;
 use app\core\Controller;
 use app\core\Request;
 use app\core\Response;
-use app\models\ContactForm;
+use app\requests\ContactRequest;
 
 class SiteController extends Controller
 {
@@ -19,18 +19,21 @@ class SiteController extends Controller
         $params =  ['name' => Application::$app->auth->user->username ?? 'Guest'];
         return $this->render('home', $params);
     }
-    public function contact(Request $request, Response $response)
+    public function index(Request $request, Response $response)
     {
-        $contact = new ContactForm;
-        if ($request->isPost()) {
-            $contact->loadData($request->getBody());
-            if ($contact->validate() && $contact->send()) {
-                Application::$app->session->setFlash("success", "Message sent Successfully");
-                return $response->redirect('/');
-            }
-        }
+        $contact = new \app\form\data\ContactFormData();
         return $this->render('contact', [
-            'model' => $contact
+            'formData' => $contact
         ]);
+    }
+
+    public function store(ContactRequest $request, Response $response)
+    {
+        dump($request->validated());
+        return;
+        if ($request->validate()) {
+            Application::$app->session->setFlash("success", "Message sent Successfully");
+            return $response->redirect('/');
+        }
     }
 }
