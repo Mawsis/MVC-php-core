@@ -1,4 +1,5 @@
 <?php
+
 namespace app\core;
 
 class Response
@@ -24,7 +25,7 @@ class Response
     {
         $this->setStatusCode($statusCode);
         $this->setHeader("Content-Type", "application/json");
-        echo json_encode($data);
+        echo json_encode($data, JSON_PRETTY_PRINT);
         exit;
     }
 

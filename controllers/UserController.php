@@ -2,21 +2,27 @@
 
 namespace app\controllers;
 
-use app\core\Application;
 use app\core\Controller;
 use app\core\Request;
 use app\core\Response;
 use app\models\User;
+use app\resources\UserResource;
 
 class UserController extends Controller
 {
     public function showUser(Request $request, Response $response, $id)
     {
-        $user = User::query()->where('id', "=", $id)->where("username", '=', 'Mawsis')->first();
+        $user = User::query()->where('id', "=", $id)->first();
         if (!$user) {
-            $response->setStatusCode(404);
-            return "User not found";
+            return $response->json(['error' => 'User not found'], 404);
         }
-        return $response->json($user);
+
+        return $response->json(UserResource::make($user));
+    }
+
+    public function listUsers(Request $request, Response $response)
+    {
+        $users = User::query()->get();
+        return $response->json(UserResource::collection($users));
     }
 }

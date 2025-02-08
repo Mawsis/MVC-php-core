@@ -61,7 +61,6 @@ class Router
 
             // Ensure correct method dependencies are resolved
             $dependencies = $this->resolveMethodDependencies($controller, $callback[1], $params ?? []);
-
             return call_user_func_array([$controller, $callback[1]], $dependencies);
         }
 
@@ -147,8 +146,6 @@ class Router
                     $dependencies[] = $this->request;
                 } elseif ($paramName === 'response') {
                     $dependencies[] = $this->response;
-                } else {
-                    $dependencies[] = null; // Ensure proper indexing in method parameters
                 }
             }
         }

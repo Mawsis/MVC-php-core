@@ -17,8 +17,8 @@ class QueryBuilder
 
     public function __construct(string $modelClass)
     {
-        $this->table = $modelClass instanceof DbModel ? $modelClass::tableName() : $modelClass;
-        $this->isClass = $modelClass instanceof DbModel ? true : false;
+        $this->table = (new $modelClass) instanceof DbModel ? $modelClass::tableName() : $modelClass;
+        $this->isClass = (new $modelClass) instanceof DbModel ? true : false;
         $this->modelClass = $modelClass;
     }
 

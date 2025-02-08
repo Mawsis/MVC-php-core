@@ -19,4 +19,5 @@ $app->router->get("/logout", [AuthController::class, 'logout']);
 
 $app->router->get("/profile", [AuthController::class, 'profile']);
 
-$app->router->get("/user/{id}", [UserController::class, 'showUser'], ["auth"]);
+$app->router->get("/users/{id}", [UserController::class, 'showUser'], ["auth"]);
+$app->router->get("/users", [UserController::class, 'listUsers'], ["auth"]);
