@@ -2,3 +2,4 @@ logs/
 *.log
 vendor
 \.env
+node_modules

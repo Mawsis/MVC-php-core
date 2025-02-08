@@ -1,4 +1,5 @@
 <?php
+
 namespace app\core\exceptions;
 
 use app\core\Application;

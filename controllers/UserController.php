@@ -22,7 +22,13 @@ class UserController extends Controller
 
     public function listUsers(Request $request, Response $response)
     {
-        $users = User::query()->get();
-        return $response->json(UserResource::collection($users));
+        $page = $request->getBody()['page'] ?? 1;
+        $perPage = $request->getBody()['per_page'] ?? 5;
+        $result = User::query()->paginate($perPage, $page);
+        $result['data'] = UserResource::collection($result['data']);
+        return $this->render('users', [
+            'users' => $result['data'],
+            'pagination' => $result['pagination']
+        ]);
     }
 }
