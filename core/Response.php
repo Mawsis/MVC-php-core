@@ -26,9 +26,15 @@ class Response
     {
         $this->setStatusCode($statusCode);
         $this->setHeader("Content-Type", "application/json");
-        echo json_encode($data, JSON_PRETTY_PRINT);
+
+        echo json_encode([
+            'success' => $statusCode < 400,
+            'status' => $statusCode,
+            'data' => $data,
+        ], JSON_PRETTY_PRINT);
         exit;
     }
+
 
     public function send(string $content, string $contentType = "text/html", int $statusCode = 200)
     {

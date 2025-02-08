@@ -1,6 +1,6 @@
 <?php
 
-namespace app\core\exceptions;
+namespace app\core;
 
 use app\core\Application;
 use app\core\Response;
@@ -22,19 +22,23 @@ class Handler
         $code = $exception->getCode() ?: 500;
         Application::$app->response->setStatusCode($code);
 
-        $this->logger->error($exception->getMessage(), [
-            'exception' => $exception,
-        ]);
+        $this->logger->error($exception->getMessage(), ['exception' => $exception]);
 
         if ($this->isApiRequest()) {
             echo json_encode([
                 'error' => true,
                 'message' => $exception->getMessage(),
+                'trace' => $_ENV['APP_ENV'] === 'dev' ? $exception->getTrace() : null
             ]);
         } else {
-            echo View::renderView('_error', ['exception' => $exception]);
+            $debug = $_ENV['APP_ENV'] === 'dev';
+            echo View::renderView('_error', [
+                'exception' => $exception,
+                'debug' => $debug ? $exception->getTraceAsString() : null
+            ], "error");
         }
     }
+
 
     private function isApiRequest(): bool
     {

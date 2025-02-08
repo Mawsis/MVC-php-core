@@ -16,6 +16,7 @@ class Application
     public Session $session;
     public Auth $auth;
     public LoggerInterface $logger;
+    public Handler $handler;
     public Controller $controller;
     public static Application $app;
 
@@ -25,6 +26,7 @@ class Application
         self::$app = $this;
 
         $this->logger = Logger::getLogger();
+        $this->handler = new Handler();
         $this->userClass = $config['userClass'];
         $this->response = new Response;
         $this->request = new Request;
@@ -47,7 +49,7 @@ class Application
         } catch (Exception $e) {
             $this->logger->error($e->getMessage(), ['exception' => $e]);
             $this->response->setStatusCode($e->getCode());
-            echo View::renderView('_error', ['exception' => $e]);
+            $this->handler->handle($e);
         }
     }
 
