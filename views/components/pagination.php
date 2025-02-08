@@ -31,7 +31,6 @@
     font-weight: bold;
 }
 </style>
-
 <div class="pagination-container">
     <?php if ($pagination['current_page'] > 1): ?>
     <a href="<?= $pagination['url'] . '?page=' . ($pagination['current_page'] - 1) ?>" class="pagination-button">«

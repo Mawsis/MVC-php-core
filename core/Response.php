@@ -4,8 +4,9 @@ namespace app\core;
 
 class Response
 {
-    protected array $headers = [];
 
+    protected array $headers = [];
+    protected array $variables = [];
     public function setStatusCode(int $code)
     {
         if (!headers_sent()) {
@@ -43,5 +44,16 @@ class Response
             header("Location: $path");
             exit;
         }
+    }
+    public function assign(string $key, $value)
+    {
+        $this->variables[$key] = $value;
+    }
+    public function render(string $view, $params = [])
+    {
+        foreach ($this->variables as $key => $value) {
+            $params[$key] = $value;
+        }
+        return View::renderView($view, $params);
     }
 }

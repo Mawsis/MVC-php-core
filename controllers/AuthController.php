@@ -14,10 +14,10 @@ use app\requests\RegisterRequest;
 
 class AuthController extends Controller
 {
-    public function loginIndex()
+    public function loginIndex(Response $response)
     {
         $loginForm = new LoginFormData;
-        return $this->render('login', [
+        return $response->render('login', [
             'model' => $loginForm
         ]);
     }
@@ -36,15 +36,15 @@ class AuthController extends Controller
             }
         }
         $loginForm->loadData($request->getBody(), $request->errors);
-        return $this->render('login', [
+        return $response->render('login', [
             'model' => $loginForm
         ]);
     }
-    public function registerIndex(Request $request)
+    public function registerIndex(Request $request, Response $response)
     {
         $user = new RegisterFormData;
 
-        return $this->render('register', [
+        return $response->render('register', [
             'model' => $user
         ]);
     }
@@ -67,7 +67,7 @@ class AuthController extends Controller
         }
         $user = new RegisterFormData;
         $user->loadData($request->getBody(), $request->errors);
-        return $this->render('register', [
+        return $response->render('register', [
             'model' => $user
         ]);
     }
@@ -77,9 +77,8 @@ class AuthController extends Controller
         Application::$app->session->setFlash("danger", "Logged out");
         $response->redirect('/');
     }
-    public function profile()
+    public function profile(Response $response)
     {
-        Application::$app->view->title = "Profile";
-        return $this->render('profile');
+        return $response->render('profile');
     }
 }

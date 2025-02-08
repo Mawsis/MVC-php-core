@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\core\Controller;
+use app\core\Paginator;
 use app\core\Request;
 use app\core\Response;
 use app\models\User;
@@ -20,15 +21,15 @@ class UserController extends Controller
         return $response->json(UserResource::make($user));
     }
 
+
     public function listUsers(Request $request, Response $response)
     {
         $page = $request->getBody()['page'] ?? 1;
         $perPage = $request->getBody()['per_page'] ?? 5;
-        $result = User::query()->paginate($perPage, $page);
-        $result['data'] = UserResource::collection($result['data']);
-        return $this->render('users', [
-            'users' => $result['data'],
-            'pagination' => $result['pagination']
+
+        $users = Paginator::paginate(User::query()->orderBy('id', 'ASC'), $response, $perPage, $page);
+        return $response->render('users', [
+            'users' => $users
         ]);
     }
 }

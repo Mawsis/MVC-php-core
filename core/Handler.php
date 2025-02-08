@@ -4,6 +4,7 @@ namespace app\core\exceptions;
 
 use app\core\Application;
 use app\core\Response;
+use app\core\View;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -31,7 +32,7 @@ class Handler
                 'message' => $exception->getMessage(),
             ]);
         } else {
-            echo Application::$app->view->renderView('_error', ['exception' => $exception]);
+            echo View::renderView('_error', ['exception' => $exception]);
         }
     }
 

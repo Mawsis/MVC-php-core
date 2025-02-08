@@ -14,12 +14,12 @@ class SiteController extends Controller
     public function home(Request $request, Response $response)
     {
         $params =  ['name' => Application::$app->auth->user->username ?? 'Guest'];
-        return $this->render('home', $params);
+        return $response->render('home', $params);
     }
     public function index(Request $request, Response $response)
     {
         $contact = new ContactFormData();
-        return $this->render('contact', [
+        return $response->render('contact', [
             'formData' => $contact
         ]);
     }
@@ -32,7 +32,7 @@ class SiteController extends Controller
         }
         $contact = new ContactFormData();
         $contact->loadData($request->getBody(), $request->errors);
-        return $this->render('contact', [
+        return $response->render('contact', [
             'formData' => $contact
         ]);
     }

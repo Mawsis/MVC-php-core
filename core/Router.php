@@ -49,9 +49,8 @@ class Router
         if (is_array($callback[1])) {
             $callback = $callback[1];
         }
-
         if (is_string($callback)) {
-            return Application::$app->view->renderView($callback);
+            return View::renderView($callback);
         }
 
         if (is_array($callback)) {

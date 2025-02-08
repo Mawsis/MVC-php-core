@@ -18,8 +18,10 @@ class QueryBuilder
 
     public function __construct(string $modelClass)
     {
-        $this->table = (new $modelClass) instanceof DbModel ? $modelClass::tableName() : $modelClass;
-        $this->isClass = (new $modelClass) instanceof DbModel ? true : false;
+        $this->table = str_contains($modelClass, "app\models") ?
+            $modelClass::tableName() :
+            $modelClass;
+        $this->isClass = str_contains($modelClass, "app\models") ? true : false;
         $this->modelClass = $modelClass;
     }
 
@@ -49,6 +51,12 @@ class QueryBuilder
         return $this;
     }
 
+    public function offset(int $offset): self
+    {
+        $this->offset = $offset;
+        return $this;
+    }
+
     public function get(): array
     {
         $sql = "SELECT " . implode(", ", $this->columns) . " FROM $this->table";
@@ -60,6 +68,9 @@ class QueryBuilder
         }
         if ($this->limit > 0) {
             $sql .= " LIMIT $this->limit";
+        }
+        if ($this->offset > 0) {
+            $sql .= " OFFSET $this->offset";
         }
 
         $statement = Application::$app->db->prepare($sql);
@@ -113,7 +124,6 @@ class QueryBuilder
         }
         $countStmt->execute();
         $total = $countStmt->fetchColumn();
-
         return [
             'data' => $data,
             'pagination' => [
