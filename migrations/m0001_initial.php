@@ -20,6 +20,6 @@ class m0001_initial extends Migration
     public function down()
     {
         $SQL = "DROP TABLE users;";
-        DB::exec($SQL);
+        DB::execute($SQL);
     }
 }

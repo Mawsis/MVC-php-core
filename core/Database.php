@@ -61,6 +61,33 @@ class Database
         $statement = $this->pdo->prepare("INSERT INTO migrations (migration) VALUES $migrations");
         $statement->execute();
     }
+    public function rollbackMigrations()
+    {
+        $this->createMigrationTable();
+        $appliedMigrations = $this->getAppliedMigrations();
+
+        if (empty($appliedMigrations)) {
+            Logger::info("No migrations to rollback.");
+            return;
+        }
+
+        $lastMigration = end($appliedMigrations);
+        require_once Application::$ROOT_DIR . "/migrations/$lastMigration";
+        $className = pathinfo($lastMigration, PATHINFO_FILENAME);
+        $instance = new $className;
+
+        Logger::info("Rolling back migration $lastMigration");
+        $instance->down();
+
+        $this->removeMigration($lastMigration);
+    }
+    private function removeMigration($migration)
+    {
+        $statement = $this->pdo->prepare("DELETE FROM migrations WHERE migration = :migration");
+        $statement->bindValue(":migration", $migration);
+        $statement->execute();
+    }
+
     public function prepare(string $sql)
     {
         Logger::info($sql);
