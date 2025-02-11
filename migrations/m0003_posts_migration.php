@@ -4,7 +4,7 @@ use app\core\facades\DB;
 use app\core\Migration;
 
 
-class m0003_test_migration extends Migration
+class m0003_posts_migration extends Migration
 {
     public function up()
     {

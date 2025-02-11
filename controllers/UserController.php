@@ -7,28 +7,37 @@ use app\core\Paginator;
 use app\core\Request;
 use app\core\Response;
 use app\models\User;
-use app\resources\UserResource;
 
 class UserController extends Controller
 {
     public function showUser(Request $request, Response $response, $id)
     {
-        $user = User::query()->where('id', "=", $id)->orWhere("id", "=",  3)->get();
+        $user = User::with(['posts'])->where('id', '=', $id)->first();
 
         if (!$user) {
             return $response->json(['error' => 'User not found'], 404);
         }
 
-        return $response->json(UserResource::make($user));
+        return $response->json([
+            'user' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'email' => $user->email,
+                'posts' => $user->posts,
+            ]
+        ]);
     }
 
 
     public function listUsers(Request $request, Response $response)
     {
-        $page = $request->getBody()['page'] ?? 1;
-        $perPage = $request->getBody()['per_page'] ?? 5;
 
-        $users = Paginator::paginate(User::query()->orderBy('id', 'ASC'), $response, $perPage, $page);
+        $users = Paginator::paginate(
+            User::query()->orderBy('id', 'ASC'),
+            $response,
+            $request->getBody()['per_page'] ?? 2,
+            $request->getBody()['page']
+        );
         return $response->render('users', [
             'users' => $users
         ]);

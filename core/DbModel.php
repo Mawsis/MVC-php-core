@@ -65,4 +65,47 @@ abstract class DbModel
         }
         return $statement->execute();
     }
+    /**
+     * Define a one-to-many relationship
+     */
+    public function hasMany(string $relatedClass, string $foreignKey, ?string $localKey = null)
+    {
+        $localKey = $localKey ?: static::primaryKey();
+        return $relatedClass::query()->where($foreignKey, '=', $this->$localKey)->get();
+    }
+
+    /**
+     * Define a one-to-one relationship
+     */
+    public function hasOne(string $relatedClass, string $foreignKey, ?string $localKey = null)
+    {
+        $localKey = $localKey ?: static::primaryKey();
+        return $relatedClass::query()->where($foreignKey, '=', $this->$localKey)->first();
+    }
+
+    /**
+     * Define a belongs-to relationship
+     */
+    public function belongsTo(string $relatedClass, string $foreignKey, ?string $ownerKey = null)
+    {
+        $ownerKey = $ownerKey ?: $relatedClass::primaryKey();
+        return $relatedClass::query()->where($ownerKey, '=', $this->$foreignKey)->first();
+    }
+
+    /**
+     * Eager Load Related Models
+     */
+    public static function with(array $relations)
+    {
+        $instance = new static();
+        $query = static::query();
+
+        foreach ($relations as $relation) {
+            if (method_exists($instance, $relation)) {
+                $query->with($relation);
+            }
+        }
+
+        return $query;
+    }
 }

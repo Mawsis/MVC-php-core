@@ -12,6 +12,7 @@ class QueryBuilder
     private array $where = [];
     private array $joins = [];
     private array $bindings = [];
+    private array $relations = [];
     private string $groupBy = '';
     private string $having = '';
     private string $orderBy = '';
@@ -93,6 +94,11 @@ class QueryBuilder
         $this->offset = $offset;
         return $this;
     }
+    public function with(string $relation)
+    {
+        $this->relations[] = $relation;
+        return $this;
+    }
 
     public function get(): array
     {
@@ -125,7 +131,15 @@ class QueryBuilder
             $statement->bindValue($param, $value);
         }
         $statement->execute();
-        return $this->isClass ? $statement->fetchAll(PDO::FETCH_CLASS, $this->modelClass) : $statement->fetchAll(PDO::FETCH_OBJ);
+        $results = $this->isClass ? $statement->fetchAll(PDO::FETCH_CLASS, $this->modelClass) : $statement->fetchAll(PDO::FETCH_OBJ);
+        foreach ($results as $result) {
+            foreach ($this->relations as $relation) {
+                if (method_exists($result, $relation)) {
+                    $result->$relation = $result->$relation();
+                }
+            }
+        }
+        return $results;
     }
 
     public function first(): ?object

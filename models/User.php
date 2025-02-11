@@ -17,6 +17,7 @@ class User extends UserModel
     public int $status = self::STATUS_INACTIVE;
     public ?int $id;
     public string $created_at;
+    public array $posts;
     public function save()
     {
         $this->password = password_hash($this->password, PASSWORD_DEFAULT);
@@ -45,5 +46,10 @@ class User extends UserModel
             'confirmPassword' => "Password Confirmation",
             'email' => 'Email'
         ];
+    }
+
+    public function posts()
+    {
+        return $this->hasMany(Post::class, "user_id");
     }
 }
