@@ -15,7 +15,7 @@ class SiteController extends Controller
 {
     public function home(Request $request, Response $response)
     {
-        $params =  ['name' => Auth::user() ?? 'Guest'];
+        $params =  ['name' => Auth::user()->username ?? 'Guest'];
         return $response->render('home', $params);
     }
     public function index(Request $request, Response $response)

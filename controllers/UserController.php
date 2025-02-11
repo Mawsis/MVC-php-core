@@ -13,7 +13,8 @@ class UserController extends Controller
 {
     public function showUser(Request $request, Response $response, $id)
     {
-        $user = User::query()->where('id', "=", $id)->first();
+        $user = User::query()->where('id', "=", $id)->orWhere("id", "=",  3)->get();
+
         if (!$user) {
             return $response->json(['error' => 'User not found'], 404);
         }

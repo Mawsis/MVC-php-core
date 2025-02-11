@@ -1,6 +1,10 @@
 <?php
 
 use app\core\Application;
+use app\core\Config;
+use app\core\Container;
+use app\core\Database;
+use app\core\facades\DB;
 use Dotenv\Dotenv;
 
 require_once __DIR__ . "/vendor/autoload.php";
@@ -17,8 +21,11 @@ $config = [
     ]
 ];
 
+Config::load(__DIR__ . "/config");
 
-$app = new Application(__DIR__, $config);
+$app = new Application(rootPath: __DIR__);
+Container::singleton('db', function () {
+    return new Database();
+});
 
-
-$app->db->applyMigrations();
+DB::applyMigrations();

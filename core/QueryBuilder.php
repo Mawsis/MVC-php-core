@@ -10,19 +10,22 @@ class QueryBuilder
     private string $table;
     private array $columns = ['*'];
     private array $where = [];
+    private array $joins = [];
     private array $bindings = [];
+    private string $groupBy = '';
+    private string $having = '';
     private string $orderBy = '';
     private int $limit = 0;
     private int $offset = 0;
-    private bool $isClass = true;
     private ?string $modelClass;
+    private bool $isClass = true;
 
     public function __construct(string $modelClass)
     {
-        $this->table = str_contains($modelClass, "app\models") ?
+        $this->table = str_contains($modelClass, "app\\models") ?
             $modelClass::tableName() :
             $modelClass;
-        $this->isClass = str_contains($modelClass, "app\models") ? true : false;
+        $this->isClass = str_contains($modelClass, "app\\models");
         $this->modelClass = $modelClass;
     }
 
@@ -32,11 +35,44 @@ class QueryBuilder
         return $this;
     }
 
-    public function where(string $column, string $operator, mixed $value): self
+    public function where(string $column, string $operator, mixed $value, string $boolean = 'AND'): self
     {
         $param = ":w" . count($this->bindings);
-        $this->where[] = "$column $operator $param";
+        $this->where[] = [$boolean, "$column $operator $param"];
         $this->bindings[$param] = $value;
+        return $this;
+    }
+
+    public function orWhere(string $column, string $operator, mixed $value): self
+    {
+        return $this->where($column, $operator, $value, 'OR');
+    }
+
+    public function join(string $table, string $first, string $operator, string $second, string $type = 'INNER'): self
+    {
+        $this->joins[] = "$type JOIN $table ON $first $operator $second";
+        return $this;
+    }
+
+    public function leftJoin(string $table, string $first, string $operator, string $second): self
+    {
+        return $this->join($table, $first, $operator, $second, 'LEFT');
+    }
+
+    public function rightJoin(string $table, string $first, string $operator, string $second): self
+    {
+        return $this->join($table, $first, $operator, $second, 'RIGHT');
+    }
+
+    public function groupBy(string $column): self
+    {
+        $this->groupBy = "GROUP BY $column";
+        return $this;
+    }
+
+    public function having(string $condition): self
+    {
+        $this->having = "HAVING $condition";
         return $this;
     }
 
@@ -61,8 +97,18 @@ class QueryBuilder
     public function get(): array
     {
         $sql = "SELECT " . implode(", ", $this->columns) . " FROM $this->table";
-        if (!empty($this->where)) {
-            $sql .= " WHERE " . implode(" AND ", $this->where);
+        if ($this->joins) {
+            $sql .= " " . implode(" ", $this->joins);
+        }
+        if ($this->where) {
+            $whereClauses = array_map(fn($w) => "{$w[0]} {$w[1]}", $this->where);
+            $sql .= " WHERE " . ltrim(implode(" ", $whereClauses), 'ANDOR');
+        }
+        if ($this->groupBy) {
+            $sql .= " $this->groupBy";
+        }
+        if ($this->having) {
+            $sql .= " $this->having";
         }
         if ($this->orderBy) {
             $sql .= " $this->orderBy";
@@ -79,11 +125,7 @@ class QueryBuilder
             $statement->bindValue($param, $value);
         }
         $statement->execute();
-        if ($this->isClass) {
-            return $statement->fetchAll(PDO::FETCH_CLASS, $this->modelClass);
-        } else {
-            return $statement->fetchAll(PDO::FETCH_OBJ);
-        }
+        return $this->isClass ? $statement->fetchAll(PDO::FETCH_CLASS, $this->modelClass) : $statement->fetchAll(PDO::FETCH_OBJ);
     }
 
     public function first(): ?object
@@ -92,63 +134,47 @@ class QueryBuilder
         $results = $this->get();
         return $results[0] ?? null;
     }
-    public function paginate(int $perPage = 10, int $page = 1): array
-    {
-        $offset = ($page - 1) * $perPage;
-        $this->limit = $perPage;
-        $this->offset = $offset;
 
-        $sql = "SELECT " . implode(", ", $this->columns) . " FROM $this->table";
-        if (!empty($this->where)) {
-            $sql .= " WHERE " . implode(" AND ", $this->where);
-        }
-        if ($this->orderBy) {
-            $sql .= " $this->orderBy";
-        }
-        $sql .= " LIMIT $this->limit OFFSET $this->offset";
+    public function insert(array $data): bool
+    {
+        $columns = array_keys($data);
+        $params = array_map(fn($col) => ":$col", $columns);
+        $sql = "INSERT INTO $this->table (" . implode(", ", $columns) . ") VALUES (" . implode(", ", $params) . ")";
 
         $statement = DB::prepare($sql);
-        foreach ($this->bindings as $param => $value) {
-            $statement->bindValue($param, $value);
+        foreach ($data as $key => $value) {
+            $statement->bindValue(":$key", $value);
         }
-        $statement->execute();
-        $data = $statement->fetchAll(PDO::FETCH_CLASS, $this->modelClass);
-
-        // Get total records count
-        $countSql = "SELECT COUNT(*) as total FROM $this->table";
-        if (!empty($this->where)) {
-            $countSql .= " WHERE " . implode(" AND ", $this->where);
-        }
-        $countStmt = DB::prepare($countSql);
-        foreach ($this->bindings as $param => $value) {
-            $countStmt->bindValue($param, $value);
-        }
-        $countStmt->execute();
-        $total = $countStmt->fetchColumn();
-        return [
-            'data' => $data,
-            'pagination' => [
-                'total' => (int) $total,
-                'per_page' => $perPage,
-                'current_page' => $page,
-                'last_page' => ceil($total / $perPage),
-                'url' => $this->removePageParam($_SERVER['REQUEST_URI'])
-            ],
-        ];
+        return $statement->execute();
     }
-    private function removePageParam(string $url): string
+
+    public function update(array $data): bool
     {
-        $parsedUrl = parse_url($url);
-        if (!isset($parsedUrl['query'])) {
-            return $url; // No query string, return as is
+        $columns = array_keys($data);
+        $updates = implode(", ", array_map(fn($col) => "$col = :$col", $columns));
+        $sql = "UPDATE $this->table SET $updates";
+
+        if ($this->where) {
+            $whereClauses = array_map(fn($w) => "{$w[0]} {$w[1]}", $this->where);
+            $sql .= " WHERE " . ltrim(implode(" ", $whereClauses), 'ANDOR');
         }
 
-        parse_str($parsedUrl['query'], $queryParams);
-        unset($queryParams['page']); // Remove "page" from query parameters
+        $statement = DB::prepare($sql);
+        foreach ($data as $key => $value) {
+            $statement->bindValue(":$key", $value);
+        }
+        return $statement->execute();
+    }
 
-        $newQueryString = http_build_query($queryParams);
-        $cleanUrl = $parsedUrl['path'] . ($newQueryString ? '?' . $newQueryString : '');
+    public function delete(): bool
+    {
+        $sql = "DELETE FROM $this->table";
+        if ($this->where) {
+            $whereClauses = array_map(fn($w) => "{$w[0]} {$w[1]}", $this->where);
+            $sql .= " WHERE " . ltrim(implode(" ", $whereClauses), 'ANDOR');
+        }
 
-        return $cleanUrl;
+        $statement = DB::prepare($sql);
+        return $statement->execute();
     }
 }
