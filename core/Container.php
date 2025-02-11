@@ -6,6 +6,7 @@ namespace app\core;
 class Container
 {
     protected static array $bindings = [];
+    protected static array $singletons = [];
 
     public static function bind(string $key, callable $resolver)
     {
@@ -19,5 +20,15 @@ class Container
         }
 
         return call_user_func(self::$bindings[$key]);
+    }
+    public static function singleton(string $key, callable $resolver)
+    {
+        self::$singletons[$key] = null; // Placeholder
+        self::$bindings[$key] = function () use ($key, $resolver) {
+            if (self::$singletons[$key] === null) {
+                self::$singletons[$key] = $resolver();
+            }
+            return self::$singletons[$key];
+        };
     }
 }

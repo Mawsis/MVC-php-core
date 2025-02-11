@@ -14,7 +14,7 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        Container::bind('db', function () {
+        Container::singleton('db', function () {
             return new Database();
         });
 
@@ -22,15 +22,15 @@ class AppServiceProvider extends ServiceProvider
             return new Auth();
         });
 
-        Container::bind('logger', function () {
+        Container::singleton('logger', function () {
             return Logger::getLogger();
         });
 
-        Container::bind('session', function () {
+        Container::singleton('session', function () {
             return new Session();
         });
 
-        Container::bind('handler', function () {
+        Container::singleton('handler', function () {
             return new Handler();
         });
     }
