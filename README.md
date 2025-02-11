@@ -7,8 +7,14 @@ My Framework
 - [x] Clean up Application class
 - [x] Add better QueryBuilder
 - [x] Add better error handling
-- [ ] Add better documentation
-- [ ] Add better examples
-- [ ] Add better logging
 - [x] Add better configuration
-- [ ] Add Tests
+- [ ] Add better logging
+- [ ] Add Tests with PHPUnit (maybe?)
+- [ ] Add API token authentication
+
+## TODO (Future)
+
+- [ ] Cloud Storage
+- [ ] Job Queue System
+- [ ] Websockets
+- [ ] Docs
