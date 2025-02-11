@@ -49,7 +49,7 @@ class Application
         } catch (Exception $e) {
             Logger::error($e->getMessage(), ['exception' => $e]);
             $response->setStatusCode($e->getCode());
-            Handler::handle($e, $response);
+            echo Handler::handle($e, $response);
         }
     }
 }

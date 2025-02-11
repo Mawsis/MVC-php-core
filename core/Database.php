@@ -2,6 +2,7 @@
 
 namespace app\core;
 
+use app\core\exceptions\DatabaseException;
 use app\core\facades\Logger;
 use PDO;
 
@@ -90,11 +91,21 @@ class Database
 
     public function prepare(string $sql)
     {
-        Logger::info($sql);
-        return $this->pdo->prepare($sql);
+        try {
+            Logger::info("Preparing SQL: $sql");
+            return $this->pdo->prepare($sql);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
     }
+
     public function execute($sql)
     {
-        return $this->pdo->exec($sql);
+        try {
+            Logger::info("Executing SQL: $sql");
+            return $this->pdo->exec($sql);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
     }
 }

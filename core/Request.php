@@ -2,6 +2,7 @@
 
 namespace app\core;
 
+use app\core\exceptions\ValidationException;
 use Exception;
 
 #[\AllowDynamicProperties]
@@ -73,19 +74,15 @@ class Request
                     }
                 }
                 if (is_string($rule)) {
-                    try {
-                        $stripped = explode(':', $rule);
-                        $rule = array_shift(array: $stripped);
-                        $params = $stripped;
-                        $rule = $this->validationConfig[$rule];
-                        $validation = $params ? new $rule(...$params) : new $rule();
-                        if ($validation->validate($body[$attribute])) {
-                            $this->validated[$attribute] = $body[$attribute];
-                        } else {
-                            $this->errors[$attribute] = $validation->getErrorMessage($attribute);
-                        }
-                    } catch (Exception $e) {
-                        throw new Exception("Validation rule $rule not found in validation config");
+                    $stripped = explode(':', $rule);
+                    $rule = array_shift(array: $stripped);
+                    $params = $stripped;
+                    $rule = $this->validationConfig[$rule];
+                    $validation = $params ? new $rule(...$params) : new $rule();
+                    if ($validation->validate($body[$attribute])) {
+                        $this->validated[$attribute] = $body[$attribute];
+                    } else {
+                        $this->errors[$attribute] = $validation->getErrorMessage($attribute);
                     }
                 }
             }

@@ -5,10 +5,10 @@ My Framework
 - [x] Add Resources functionality
 - [x] Add Pagination functionality
 - [x] Clean up Application class
-- [ ] Add better QueryBuilder
-- [ ] Add better error handling
+- [x] Add better QueryBuilder
+- [x] Add better error handling
 - [ ] Add better documentation
 - [ ] Add better examples
 - [ ] Add better logging
-- [ ] Add better configuration
+- [x] Add better configuration
 - [ ] Add Tests
