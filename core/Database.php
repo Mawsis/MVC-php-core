@@ -1,11 +1,16 @@
 <?php
+
 namespace app\core;
+
+use app\core\facades\Logger;
 use PDO;
+
 class Database
 {
     public PDO $pdo;
-    public function __construct(array $config)
+    public function __construct()
     {
+        $config = Config::get('database');
         $dsn = $config['dsn'] ?? '';
         $user = $config['user'] ?? '';
         $password = $config['password'] ?? '';
@@ -26,14 +31,14 @@ class Database
             require_once Application::$ROOT_DIR . "/migrations/$migration";
             $className = pathinfo($migration, PATHINFO_FILENAME);
             $instance = new $className;
-            Application::$app->logger->info("Applying migration $migration");
+            Logger::info("Applying migration $migration");
             $instance->up();
             $newMigrations[] = $migration;
         }
         if (!empty($newMigrations)) {
             $this->saveMigrations($newMigrations);
         } else {
-            Application::$app->logger->info("All migrations applied");
+            Logger::info("All migrations applied");
         }
     }
     public function createMigrationTable()
@@ -58,7 +63,7 @@ class Database
     }
     public function prepare(string $sql)
     {
-        Application::$app->logger->info($sql);
+        Logger::info($sql);
         return $this->pdo->prepare($sql);
     }
 }

@@ -2,19 +2,18 @@
 
 namespace app\core;
 
+use app\core\facades\Session;
 use app\models\User;
 
 class Auth
 {
-    private Session $session;
     public ?UserModel $user = null;
 
-    public function __construct(Session $session, string $userClass)
+    public function __construct()
     {
-        $this->session = $session;
-
+        $userClass = Config::get('auth.userClass');
         // Retrieve authenticated user if session exists
-        $userId = $this->session->get('user');
+        $userId = Session::get('user');
         if ($userId) {
             $this->user = $userClass::findOne(['id' => $userId]);
         }
@@ -23,14 +22,14 @@ class Auth
     public function login(UserModel $user): bool
     {
         $this->user = $user;
-        $this->session->set('user', $user->id);
+        Session::set('user', $user->id);
         return true;
     }
 
     public function logout(): void
     {
         $this->user = null;
-        $this->session->remove('user');
+        Session::remove('user');
     }
 
     public function user(): ?UserModel

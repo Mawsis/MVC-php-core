@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\core\Application;
 use app\core\Controller;
+use app\core\facades\Session;
 use app\core\Request;
 use app\core\Response;
 use app\form\data\ContactFormData;
@@ -27,7 +28,7 @@ class SiteController extends Controller
     public function store(ContactRequest $request, Response $response)
     {
         if ($request->validate()) {
-            Application::$app->session->setFlash("success", "Message sent Successfully");
+            Session::setFlash("success", "Message sent Successfully");
             return $response->redirect('/');
         }
         $contact = new ContactFormData();

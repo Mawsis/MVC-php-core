@@ -13,11 +13,9 @@ class Router
     protected array $routeMiddlewares = [];
     protected array $middlewareConfig;
 
-    public function __construct(Request $request, Response $response)
+    public function __construct()
     {
-        $this->request = $request;
-        $this->response = $response;
-        $this->middlewareConfig = require_once Application::$ROOT_DIR . '/config/middlewares.php';
+        $this->middlewareConfig = Config::get('middlewares');
     }
 
     public function get(string $path, $callback, array $middlewares = [])
@@ -55,7 +53,6 @@ class Router
 
         if (is_array($callback)) {
             $controller = new $callback[0]();
-            Application::$app->controller = $controller;
             $controller->action = $callback[1];
 
             // Ensure correct method dependencies are resolved

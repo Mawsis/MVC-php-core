@@ -2,6 +2,7 @@
 
 namespace app\core;
 
+use app\core\facades\DB;
 use PDO;
 
 class QueryBuilder
@@ -73,7 +74,7 @@ class QueryBuilder
             $sql .= " OFFSET $this->offset";
         }
 
-        $statement = Application::$app->db->prepare($sql);
+        $statement = DB::prepare($sql);
         foreach ($this->bindings as $param => $value) {
             $statement->bindValue($param, $value);
         }
@@ -106,7 +107,7 @@ class QueryBuilder
         }
         $sql .= " LIMIT $this->limit OFFSET $this->offset";
 
-        $statement = Application::$app->db->prepare($sql);
+        $statement = DB::prepare($sql);
         foreach ($this->bindings as $param => $value) {
             $statement->bindValue($param, $value);
         }
@@ -118,7 +119,7 @@ class QueryBuilder
         if (!empty($this->where)) {
             $countSql .= " WHERE " . implode(" AND ", $this->where);
         }
-        $countStmt = Application::$app->db->prepare($countSql);
+        $countStmt = DB::prepare($countSql);
         foreach ($this->bindings as $param => $value) {
             $countStmt->bindValue($param, $value);
         }

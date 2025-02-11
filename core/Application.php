@@ -2,59 +2,54 @@
 
 namespace app\core;
 
+use app\core\facades\Handler;
+use app\core\facades\Logger;
+use app\providers\AppServiceProvider;
 use Exception;
-use Psr\Log\LoggerInterface;
 
 class Application
 {
     public static string $ROOT_DIR;
-    public string $userClass;
     public Router $router;
-    public Request $request;
-    public Response $response;
-    public Database $db;
-    public Session $session;
-    public Auth $auth;
-    public LoggerInterface $logger;
-    public Handler $handler;
-    public Controller $controller;
     public static Application $app;
+    protected array $providers = [];
 
-    public function __construct($rootPath, $config)
+    public function __construct($rootPath)
     {
         self::$ROOT_DIR = $rootPath;
         self::$app = $this;
 
-        $this->logger = Logger::getLogger();
-        $this->handler = new Handler();
-        $this->userClass = $config['userClass'];
-        $this->response = new Response;
-        $this->request = new Request;
-        $this->session = new Session;
-        $this->router = new Router($this->request, $this->response);
-        $this->db = new Database($config['db']);
+        $this->providers = Config::get('providers');
+        $this->registerProviders();
 
-        // Initialize Auth class
-        $this->auth = new Auth($this->session, $this->userClass);
+        $this->router = new Router();
+    }
+
+    public function registerProviders()
+    {
+        foreach ($this->providers as $provider) {
+            $provider = new $provider();
+            $provider->register();
+        }
     }
 
     public function run()
     {
+        $response = new Response();
+        $request = new Request();
+        $this->router->request = $request;
+        $this->router->response = $response;
+
         try {
-            $this->logger->info('Request received', [
-                'path' => $this->request->getPath(),
-                'method' => $this->request->method()
+            Logger::info('Request received', [
+                'path' => $request->getPath(),
+                'method' => $request->method()
             ]);
             echo $this->router->resolve();
         } catch (Exception $e) {
-            $this->logger->error($e->getMessage(), ['exception' => $e]);
-            $this->response->setStatusCode($e->getCode());
-            $this->handler->handle($e);
+            Logger::error($e->getMessage(), ['exception' => $e]);
+            $response->setStatusCode($e->getCode());
+            Handler::handle($e, $response);
         }
-    }
-
-    public static function isGuest(): bool
-    {
-        return self::$app->auth->isGuest();
     }
 }

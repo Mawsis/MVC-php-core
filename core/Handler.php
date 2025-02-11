@@ -3,6 +3,7 @@
 namespace app\core;
 
 use app\core\Application;
+use app\core\facades\Logger;
 use app\core\Response;
 use app\core\View;
 use Psr\Log\LoggerInterface;
@@ -12,17 +13,13 @@ class Handler
 {
     protected LoggerInterface $logger;
 
-    public function __construct()
-    {
-        $this->logger = Application::$app->logger;
-    }
 
-    public function handle(Throwable $exception)
+    public function handle(Throwable $exception, Response $response)
     {
         $code = $exception->getCode() ?: 500;
-        Application::$app->response->setStatusCode($code);
+        $response->setStatusCode($code);
 
-        $this->logger->error($exception->getMessage(), ['exception' => $exception]);
+        Logger::error($exception->getMessage(), ['exception' => $exception]);
 
         if ($this->isApiRequest()) {
             echo json_encode([

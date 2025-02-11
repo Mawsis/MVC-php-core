@@ -1,6 +1,8 @@
 <?php
 
 use app\core\Application;
+use app\core\facades\Auth;
+use app\core\facades\Session;
 use app\core\View;
 ?>
 <!doctype html>
@@ -33,7 +35,7 @@ use app\core\View;
                     </li>
                 </ul>
                 <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
-                    <?php if (Application::isGuest()): ?>
+                    <?php if (Auth::isGuest()): ?>
                     <li class="nav-item">
                         <a class="nav-link" href="/register">Register</a>
                     </li>
@@ -42,7 +44,7 @@ use app\core\View;
                     </li>
                     <?php else: ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="/profile"><?= Application::$app->auth->user()->getDisplayName() ?></a>
+                        <a class="nav-link" href="/profile"><?= Auth::user()->getDisplayName() ?></a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/logout">Logout</a>
@@ -53,14 +55,14 @@ use app\core\View;
         </div>
     </nav>
     <div class="container">
-        <?php if (Application::$app->session->getFlash('success')): ?>
+        <?php if (Session::getFlash('success')): ?>
         <div class="alert alert-success">
-            <?= Application::$app->session->getFlash('success') ?>
+            <?= Session::getFlash('success') ?>
         </div>
         <?php endif; ?>
-        <?php if (Application::$app->session->getFlash('danger')): ?>
+        <?php if (Session::getFlash('danger')): ?>
         <div class="alert alert-danger">
-            <?= Application::$app->session->getFlash('danger') ?>
+            <?= Session::getFlash('danger') ?>
         </div>
         <?php endif; ?>
         {{content}}

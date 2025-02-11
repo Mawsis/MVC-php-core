@@ -4,6 +4,8 @@ namespace app\controllers;
 
 use app\core\Application;
 use app\core\Controller;
+use app\core\facades\Auth;
+use app\core\facades\Session;
 use app\core\Request;
 use app\core\Response;
 use app\form\data\LoginFormData;
@@ -27,8 +29,8 @@ class AuthController extends Controller
         if ($request->validate()) {
             $user = User::findOne(['email' => $request->validated()['email']]);
             if (password_verify($request->validated()['password'], $user->password)) {
-                Application::$app->auth->login($user);
-                Application::$app->session->setFlash("success", "Login Successful");
+                Auth::login($user);
+                Session::setFlash("success", "Login Successful");
                 $response->redirect('/');
                 return;
             } else {
@@ -61,8 +63,8 @@ class AuthController extends Controller
             } catch (\Exception $e) {
                 throw $e;
             }
-            Application::$app->session->setFlash("success", "Register Successful");
-            Application::$app->response->redirect("/");
+            Session::setFlash("success", "Register Successful");
+            $response->redirect("/");
             return $response->redirect('/');
         }
         $user = new RegisterFormData;
@@ -73,8 +75,8 @@ class AuthController extends Controller
     }
     public function logout(Request $request, Response $response)
     {
-        Application::$app->auth->logout();
-        Application::$app->session->setFlash("danger", "Logged out");
+        Auth::logout();
+        Session::setFlash("danger", "Logged out");
         $response->redirect('/');
     }
     public function profile(Response $response)

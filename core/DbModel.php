@@ -2,6 +2,7 @@
 
 namespace app\core;
 
+use app\core\facades\DB;
 use PDO;
 
 abstract class DbModel
@@ -49,7 +50,7 @@ abstract class DbModel
 
     protected static function prepare(string $sql)
     {
-        return Application::$app->db->pdo->prepare($sql);
+        return DB::prepare($sql);
     }
     public static function create(array $data)
     {
