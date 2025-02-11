@@ -4,7 +4,7 @@ My Framework
 
 - [x] Add Resources functionality
 - [x] Add Pagination functionality
-- [ ] Clean up Application class
+- [x] Clean up Application class
 - [ ] Add better QueryBuilder
 - [ ] Add better error handling
 - [ ] Add better documentation

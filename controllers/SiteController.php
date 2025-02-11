@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\core\Application;
 use app\core\Controller;
+use app\core\facades\Auth;
 use app\core\facades\Session;
 use app\core\Request;
 use app\core\Response;
@@ -14,7 +15,7 @@ class SiteController extends Controller
 {
     public function home(Request $request, Response $response)
     {
-        $params =  ['name' => Application::$app->auth->user->username ?? 'Guest'];
+        $params =  ['name' => Auth::user() ?? 'Guest'];
         return $response->render('home', $params);
     }
     public function index(Request $request, Response $response)
