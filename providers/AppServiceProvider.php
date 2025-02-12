@@ -7,6 +7,7 @@ use app\core\Container;
 use app\core\Database;
 use app\core\Handler;
 use app\core\Logger;
+use app\core\Router;
 use app\core\ServiceProvider;
 use app\core\Session;
 
@@ -32,6 +33,10 @@ class AppServiceProvider extends ServiceProvider
 
         Container::singleton('handler', function () {
             return new Handler();
+        });
+
+        Container::singleton('route', function () {
+            return new Router();
         });
     }
 }

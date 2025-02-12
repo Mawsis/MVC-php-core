@@ -44,19 +44,19 @@ class Request
     public function getBody(): array
     {
         $body = [];
-        if ($_SERVER['CONTENT_TYPE'] === 'application/json') {
-            $jsonInput = file_get_contents('php://input');
-            $decodedJson = json_decode($jsonInput, true);
-            if (is_array($decodedJson)) {
-                return $decodedJson;
-            }
-        }
         if ($this->isGet()) {
             foreach ($_GET as $key => $value) {
                 $body[$key] = filter_input(INPUT_GET, $key, FILTER_SANITIZE_SPECIAL_CHARS);
             }
         }
         if ($this->isPost()) {
+            if ($_SERVER['CONTENT_TYPE'] === 'application/json') {
+                $jsonInput = file_get_contents('php://input');
+                $decodedJson = json_decode($jsonInput, true);
+                if (is_array($decodedJson)) {
+                    return $decodedJson;
+                }
+            }
             foreach ($_POST as $key => $value) {
                 $body[$key] = filter_input(INPUT_POST, $key, FILTER_SANITIZE_SPECIAL_CHARS);
             }

@@ -10,7 +10,6 @@ use Exception;
 class Application
 {
     public static string $ROOT_DIR;
-    public Router $router;
     public static Application $app;
     protected array $providers = [];
 
@@ -21,8 +20,6 @@ class Application
 
         $this->providers = Config::get('providers');
         $this->registerProviders();
-
-        $this->router = new Router();
     }
 
     public function registerProviders()
@@ -37,15 +34,16 @@ class Application
     {
         $response = new Response();
         $request = new Request();
-        $this->router->request = $request;
-        $this->router->response = $response;
+        $router = Container::make('route');
+        $router->request = $request;
+        $router->response = $response;
 
         try {
             Logger::info('Request received', [
                 'path' => $request->getPath(),
                 'method' => $request->method()
             ]);
-            echo $this->router->resolve();
+            echo $router->resolve();
         } catch (Exception $e) {
             Logger::error($e->getMessage(), ['exception' => $e]);
             $response->setStatusCode($e->getCode());
