@@ -6,6 +6,7 @@ use app\core\Application;
 use app\core\Controller;
 use app\core\facades\Auth;
 use app\core\facades\Session;
+use app\core\helpers\JwtHelper;
 use app\core\Request;
 use app\core\Response;
 use app\form\data\LoginFormData;
@@ -25,23 +26,35 @@ class AuthController extends Controller
     }
     public function loginStore(LoginRequest $request, Response $response)
     {
-        $loginForm = new LoginFormData;
         if ($request->validate()) {
             $user = User::findOne(['email' => $request->validated()['email']]);
-            if (password_verify($request->validated()['password'], $user->password)) {
-                Auth::login($user);
-                Session::setFlash("success", "Login Successful");
-                $response->redirect('/');
-                return;
-            } else {
-                $request->addError('password', 'Password doesn\'t match');
+            if ($user && password_verify($request->validated()['password'], $user->password)) {
+                $token = JwtHelper::generateToken($user);
+                return $response->json(['token' => $token]);
             }
         }
-        $loginForm->loadData($request->getBody(), $request->errors);
-        return $response->render('login', [
-            'model' => $loginForm
-        ]);
+        return $response->json(['error' => 'Invalid credentials'], 401);
     }
+
+    // public function loginStore(LoginRequest $request, Response $response)
+    // {
+    //     $loginForm = new LoginFormData;
+    //     if ($request->validate()) {
+    //         $user = User::findOne(['email' => $request->validated()['email']]);
+    //         if (password_verify($request->validated()['password'], $user->password)) {
+    //             Auth::login($user);
+    //             Session::setFlash("success", "Login Successful");
+    //             $response->redirect('/');
+    //             return;
+    //         } else {
+    //             $request->addError('password', 'Password doesn\'t match');
+    //         }
+    //     }
+    //     $loginForm->loadData($request->getBody(), $request->errors);
+    //     return $response->render('login', [
+    //         'model' => $loginForm
+    //     ]);
+    // }
     public function registerIndex(Request $request, Response $response)
     {
         $user = new RegisterFormData;

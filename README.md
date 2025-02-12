@@ -8,9 +8,9 @@ My Framework
 - [x] Add better QueryBuilder
 - [x] Add better error handling
 - [x] Add better configuration
-- [ ] Add better logging
-- [ ] Add Tests with PHPUnit (maybe?)
+- [x] Add better logging
 - [ ] Add API token authentication
+- [ ] Add Tests with PHPUnit (maybe?)
 
 ## TODO (Future)
 
