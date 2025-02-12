@@ -36,7 +36,7 @@ class UserController extends Controller
             User::query()->orderBy('id', 'ASC'),
             $response,
             $request->getBody()['per_page'] ?? 2,
-            $request->getBody()['page']
+            $request->getBody()['page'] ?? 1
         );
         return $response->render('users', [
             'users' => $users

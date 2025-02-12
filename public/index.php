@@ -2,8 +2,7 @@
 
 use app\core\Application;
 use app\core\Config;
-use app\core\facades\DB;
-use app\providers\AppServiceProvider;
+use app\core\middlewares\CorsMiddleware;
 use Dotenv\Dotenv;
 
 // Start output buffering to prevent "headers already sent" issues
@@ -61,6 +60,7 @@ Config::load(dirname(__DIR__) . '/config');
 
 $app = new Application(dirname(__DIR__));
 
+(new CorsMiddleware)->execute();
 require_once __DIR__ . "/../routes/main.php";
 
 

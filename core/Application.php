@@ -4,6 +4,7 @@ namespace app\core;
 
 use app\core\facades\Handler;
 use app\core\facades\Logger;
+use app\core\middlewares\CorsMiddleware;
 use app\providers\AppServiceProvider;
 use Exception;
 

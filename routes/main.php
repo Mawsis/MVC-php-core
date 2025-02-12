@@ -20,5 +20,5 @@ Route::get("/logout", [AuthController::class, 'logout']);
 
 Route::get("/profile", [AuthController::class, 'profile']);
 
-Route::get("/users/{id}", [UserController::class, 'showUser'], ["jwt"]);
+Route::get("/users/{id}", [UserController::class, 'showUser'], ["auth"]);
 Route::get("/users", [UserController::class, 'listUsers'], ["auth"]);
