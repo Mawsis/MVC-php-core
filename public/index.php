@@ -60,7 +60,6 @@ Config::load(dirname(__DIR__) . '/config');
 
 $app = new Application(dirname(__DIR__));
 
-(new CorsMiddleware)->execute();
 require_once __DIR__ . "/../routes/main.php";
 
 

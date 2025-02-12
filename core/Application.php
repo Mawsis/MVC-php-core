@@ -19,6 +19,7 @@ class Application
         self::$ROOT_DIR = $rootPath;
         self::$app = $this;
 
+        (new CorsMiddleware)->execute();
         $this->providers = Config::get('providers');
         $this->registerProviders();
     }
